@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- ปรับแต่ง Custom CSS สำหรับ UX/UI สไตล์ Modern Glassmorphism & Executive Dashboard ---
+# --- ปรับแต่ง Custom CSS สไตล์ Dark Slate & Emerald Green Premium ---
 st.markdown(
     """
     <style>
@@ -27,28 +27,29 @@ st.markdown(
 
     /* Main Container Padding */
     .block-container {
-        padding-top: 1.8rem;
+        padding-top: 1.6rem;
         padding-bottom: 3rem;
-        padding-left: 2.5rem;
-        padding-right: 2.5rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 
-    /* Hero Banner Header */
+    /* Hero Banner Header (Dark Emerald Gradient) */
     .hero-container {
-        background: linear-gradient(135deg, #0F766E 0%, #0D9488 45%, #0284C7 100%);
+        background: linear-gradient(135deg, #064E3B 0%, #065F46 45%, #0F766E 100%);
         border-radius: 20px;
-        padding: 28px 32px;
+        padding: 26px 30px;
         color: white;
-        margin-bottom: 24px;
-        box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.25);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 20px;
+        box-shadow: 0 12px 30px -8px rgba(6, 78, 59, 0.45);
+        border: 1px solid rgba(16, 185, 129, 0.25);
     }
     .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(8px);
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid rgba(52, 211, 153, 0.35);
+        color: #A7F3D0;
         padding: 4px 12px;
         border-radius: 20px;
         font-size: 13px;
@@ -57,31 +58,32 @@ st.markdown(
         letter-spacing: 0.3px;
     }
     .hero-title {
-        font-size: 28px;
+        font-size: 27px;
         font-weight: 700;
         margin: 0 0 8px 0;
         line-height: 1.25;
-        letter-spacing: -0.5px;
+        color: #FFFFFF;
+        letter-spacing: -0.3px;
     }
     .hero-subtitle {
-        font-size: 14.5px;
-        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        color: #E2E8F0;
         margin: 0;
         line-height: 1.5;
     }
 
-    /* Status Pill */
+    /* Status Pill (Dark Mode) */
     .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: #ECFDF5;
-        color: #065F46;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 12px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #34D399;
+        padding: 4px 12px;
+        border-radius: 14px;
+        font-size: 12.5px;
         font-weight: 600;
-        border: 1px solid #A7F3D0;
+        border: 1px solid rgba(52, 211, 153, 0.25);
     }
     .pulse-dot {
         width: 8px;
@@ -89,17 +91,17 @@ st.markdown(
         background: #10B981;
         border-radius: 50%;
         display: inline-block;
-        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35);
     }
 
-    /* KPI Cards */
+    /* KPI Cards (Dark Slate Glassmorphism) */
     .kpi-card {
-        background: white;
+        background: #111827;
         border-radius: 18px;
         padding: 20px 22px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #1F2937;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         margin-bottom: 8px;
         height: 100%;
         display: flex;
@@ -108,7 +110,8 @@ st.markdown(
     }
     .kpi-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.07);
+        border-color: rgba(16, 185, 129, 0.45);
+        box-shadow: 0 10px 25px -4px rgba(16, 185, 129, 0.15);
     }
     .kpi-header {
         display: flex;
@@ -119,7 +122,7 @@ st.markdown(
     .kpi-title {
         font-size: 13.5px;
         font-weight: 500;
-        color: #64748B;
+        color: #9CA3AF;
         margin: 0;
     }
     .kpi-icon-box {
@@ -134,13 +137,13 @@ st.markdown(
     .kpi-value {
         font-size: 26px;
         font-weight: 700;
-        color: #0F172A;
+        color: #F9FAFB;
         margin: 0 0 6px 0;
         letter-spacing: -0.5px;
     }
     .kpi-footer {
         font-size: 12px;
-        color: #94A3B8;
+        color: #6B7280;
         display: flex;
         align-items: center;
         gap: 4px;
@@ -148,54 +151,42 @@ st.markdown(
 
     /* Section Headers */
     .section-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1E293B;
-        margin: 20px 0 14px 0;
+        font-size: 17px;
+        font-weight: 600;
+        color: #F3F4F6;
+        margin: 18px 0 12px 0;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
     /* Sidebar Styling */
-    .css-1d391kg, [data-testid="stSidebar"] {
-        background-color: #F8FAFC;
-        border-right: 1px solid #E2E8F0;
-    }
     .sidebar-header {
-        padding: 10px 0 16px 0;
-        border-bottom: 1px solid #E2E8F0;
+        padding: 8px 0 16px 0;
+        border-bottom: 1px solid #1F2937;
         margin-bottom: 16px;
     }
 
-    /* Tab bar aesthetic */
+    /* Tab bar aesthetic (Dark Slate) */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: #F1F5F9;
+        background-color: #111827;
         padding: 6px;
         border-radius: 14px;
-        border: 1px solid #E2E8F0;
+        border: 1px solid #1F2937;
     }
     .stTabs [data-baseweb="tab"] {
         border-radius: 10px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 13.5px;
         padding: 8px 18px;
-        color: #64748B;
+        color: #9CA3AF;
     }
     .stTabs [aria-selected="true"] {
-        background-color: white !important;
-        color: #0D9488 !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    /* Metric callout container */
-    .glass-panel {
-        background: #FFFFFF;
-        border-radius: 18px;
-        padding: 20px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        background-color: #1F2937 !important;
+        color: #34D399 !important;
+        border-bottom: 2px solid #10B981 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
     </style>
     """,
@@ -263,12 +254,12 @@ with st.sidebar:
         """
         <div class="sidebar-header">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: #0D9488; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10B981; color: #34D399; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                     ♻️
                 </div>
                 <div>
-                    <div style="font-weight: 700; font-size: 16px; color: #0F172A;">Waste Analytics</div>
-                    <div style="font-size: 11px; color: #64748B;">ปีงบประมาณ 2568</div>
+                    <div style="font-weight: 700; font-size: 16px; color: #F3F4F6;">Waste Analytics</div>
+                    <div style="font-size: 11.5px; color: #9CA3AF;">ปีงบประมาณ 2568</div>
                 </div>
             </div>
         </div>
@@ -276,7 +267,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown("### 🎛️ ตัวกรองการวิเคราะห์")
+    st.markdown("#### 🎛️ ตัวกรองการวิเคราะห์")
 
     # Widget 1: สังกัด
     affiliations = ["ทั้งหมด"] + sorted(df_raw["สังกัด"].dropna().unique().tolist())
@@ -304,7 +295,7 @@ with st.sidebar:
     search_unit = st.text_input("4. ค้นหาชื่อหน่วยงาน:", placeholder="เช่น ส่วนกลาง, สาขา...")
 
     st.markdown("---")
-    st.markdown("### ⚙️ ปรับแต่งการแสดงผล")
+    st.markdown("#### ⚙️ ปรับแต่งหน่วยตัวเลข")
 
     # Widget 5: หน่วยตัวเลข
     unit_option = st.radio(
@@ -318,10 +309,10 @@ with st.sidebar:
     st.markdown("---")
     st.markdown(
         """
-        <div style="padding: 12px; background: #F1F5F9; border-radius: 12px; font-size: 12px; color: #475569;">
-            <div style="font-weight: 600; margin-bottom: 4px;">🚀 สถานะ Deployment</div>
+        <div style="padding: 12px; background: #111827; border: 1px solid #1F2937; border-radius: 12px; font-size: 12px; color: #9CA3AF;">
+            <div style="font-weight: 600; color: #E5E7EB; margin-bottom: 4px;">🚀 ข้อมูล Deployment</div>
             <div>• แพลตฟอร์ม: Streamlit Cloud</div>
-            <div>• ซอร์สโค้ด: <a href="https://github.com/wiwatpromwihan/Streamlit_Data_Visualization-Deployment" target="_blank" style="color: #0D9488; text-decoration: none; font-weight: 600;">GitHub Repo</a></div>
+            <div>• Repository: <a href="https://github.com/wiwatpromwihan/Streamlit_Data_Visualization-Deployment" target="_blank" style="color: #34D399; text-decoration: none; font-weight: 600;">GitHub Link</a></div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -361,14 +352,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ข้อมูลสรุปสถานะการกรอง
+# ข้อมูลสรุปสถานะการกรอง (มองเห็นชัดในธีมมืด)
 col_stat_l, col_stat_r = st.columns([1, 1])
 with col_stat_l:
     st.markdown(
         f"""
-        <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #475569;">
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #94A3B8;">
             <span class="status-badge"><span class="pulse-dot"></span> เชื่อมต่อ: {source_status}</span>
-            <span>กำลังแสดงข้อมูล <b>{len(df_filtered):,}</b> จากทั้งหมด {len(df_raw):,} รายการ</span>
+            <span>กำลังแสดงข้อมูล <b style="color: #F3F4F6;">{len(df_filtered):,}</b> จากทั้งหมด {len(df_raw):,} รายการ</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -376,8 +367,8 @@ with col_stat_l:
 with col_stat_r:
     st.markdown(
         f"""
-        <div style="text-align: right; font-size: 13px; color: #64748B;">
-            หน่วยแสดงผล: <b>{unit_option}</b> | สังกัด: <b>{selected_affil}</b>
+        <div style="text-align: right; font-size: 13px; color: #94A3B8;">
+            หน่วยแสดงผล: <b style="color: #34D399;">{unit_option}</b> | สังกัด: <b style="color: #F3F4F6;">{selected_affil}</b>
         </div>
         """,
         unsafe_allow_html=True,
@@ -396,7 +387,7 @@ util_pct = (
 )
 disp_pct = 100.0 - util_pct if util_pct <= 100 else 0.0
 
-# --- แสดง KPI Cards 4 ช่อง ดีไซน์หรูหรา ---
+# --- แสดง KPI Cards 4 ช่อง ดีไซน์ Dark Slate & Emerald ---
 kpi_c1, kpi_c2, kpi_c3, kpi_c4 = st.columns(4)
 
 with kpi_c1:
@@ -405,9 +396,9 @@ with kpi_c1:
         <div class="kpi-card">
             <div class="kpi-header">
                 <span class="kpi-title">ขยะที่เกิดขึ้นรวม</span>
-                <div class="kpi-icon-box" style="background: #FEF3C7; color: #D97706;">🗑️</div>
+                <div class="kpi-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24;">🗑️</div>
             </div>
-            <div class="kpi-value">{total_gen:,.2f} <span style="font-size: 15px; font-weight: 500; color: #64748B;">{unit_label}</span></div>
+            <div class="kpi-value">{total_gen:,.2f} <span style="font-size: 15px; font-weight: 500; color: #9CA3AF;">{unit_label}</span></div>
             <div class="kpi-footer">
                 <span>ปริมาณขยะทั้งหมดที่บันทึก</span>
             </div>
@@ -422,11 +413,11 @@ with kpi_c2:
         <div class="kpi-card">
             <div class="kpi-header">
                 <span class="kpi-title">นำไปใช้ประโยชน์</span>
-                <div class="kpi-icon-box" style="background: #CCFBF1; color: #0D9488;">🌱</div>
+                <div class="kpi-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #34D399;">🌱</div>
             </div>
-            <div class="kpi-value" style="color: #0D9488;">{total_util:,.2f} <span style="font-size: 15px; font-weight: 500; color: #0D9488;">{unit_label}</span></div>
+            <div class="kpi-value" style="color: #34D399;">{total_util:,.2f} <span style="font-size: 15px; font-weight: 500; color: #34D399;">{unit_label}</span></div>
             <div class="kpi-footer">
-                <span style="color: #0D9488; font-weight: 600;">{util_pct:.1f}%</span> ของขยะที่เกิดขึ้น
+                <span style="color: #34D399; font-weight: 600;">{util_pct:.1f}%</span> ของขยะที่เกิดขึ้น
             </div>
         </div>
         """,
@@ -439,11 +430,11 @@ with kpi_c3:
         <div class="kpi-card">
             <div class="kpi-header">
                 <span class="kpi-title">ส่งไปกำจัด</span>
-                <div class="kpi-icon-box" style="background: #FEE2E2; color: #DC2626;">🚛</div>
+                <div class="kpi-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #F87171;">🚛</div>
             </div>
-            <div class="kpi-value" style="color: #DC2626;">{total_disp:,.2f} <span style="font-size: 15px; font-weight: 500; color: #DC2626;">{unit_label}</span></div>
+            <div class="kpi-value" style="color: #F87171;">{total_disp:,.2f} <span style="font-size: 15px; font-weight: 500; color: #F87171;">{unit_label}</span></div>
             <div class="kpi-footer">
-                <span style="color: #DC2626; font-weight: 600;">{disp_pct:.1f}%</span> ส่งหลุมฝังกลบ/เผา
+                <span style="color: #F87171; font-weight: 600;">{disp_pct:.1f}%</span> ส่งหลุมฝังกลบ/เผา
             </div>
         </div>
         """,
@@ -456,9 +447,9 @@ with kpi_c4:
         <div class="kpi-card">
             <div class="kpi-header">
                 <span class="kpi-title">อัตราการรีไซเคิล/ใช้ซ้ำ</span>
-                <div class="kpi-icon-box" style="background: #E0E7FF; color: #4F46E5;">♻️</div>
+                <div class="kpi-icon-box" style="background: rgba(99, 102, 241, 0.15); color: #818CF8;">♻️</div>
             </div>
-            <div class="kpi-value" style="color: #4F46E5;">{util_pct:.1f}%</div>
+            <div class="kpi-value" style="color: #818CF8;">{util_pct:.1f}%</div>
             <div class="kpi-footer">
                 <span>ประสิทธิภาพคัดแยกขยะ</span>
             </div>
@@ -469,7 +460,7 @@ with kpi_c4:
 
 st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
 
-# --- จัดแบ่งเนื้อหาเป็น Tabs เพื่อการใช้งานที่ราบรื่น (Tabs Layout) ---
+# --- จัดแบ่งเนื้อหาเป็น Tabs ---
 tab_dash, tab_deep, tab_data = st.tabs([
     "📊 แดชบอร์ดหลักและแนวโน้ม (Dashboard & Trends)",
     "🏢 เจาะลึกรายสังกัดและหน่วยงาน (Agency Deep Dive)",
@@ -506,21 +497,21 @@ with tab_dash:
             orientation="h",
             color="แสดงผล",
             color_continuous_scale=[
-                [0.0, "#A7F3D0"],
-                [0.5, "#14B8A6"],
-                [1.0, "#0F766E"],
+                [0.0, "#065F46"],
+                [0.5, "#0D9488"],
+                [1.0, "#34D399"],
             ],
             labels={"แสดงผล": f"ปริมาณ ({unit_label})", "หน่วยงาน": ""},
         )
         fig_bar.update_layout(
             yaxis={"categoryorder": "total ascending"},
-            font=dict(family="Prompt", size=12),
+            font=dict(family="Prompt", size=12, color="#E2E8F0"),
             margin=dict(l=10, r=20, t=10, b=20),
             height=370,
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             coloraxis_showscale=False,
-            xaxis=dict(showgrid=True, gridcolor="#F1F5F9"),
+            xaxis=dict(showgrid=True, gridcolor="#1F2937", zeroline=False),
         )
         fig_bar.update_traces(
             marker=dict(cornerradius=8),
@@ -528,7 +519,7 @@ with tab_dash:
         )
         st.plotly_chart(fig_bar, use_container_width=True)
 
-    # กราฟวงกลม สัดส่วนการจัดการ
+    # กราฟวงกลม สัดส่วนการจัดการ (ไม่ตัดตัวหนังสือ)
     with col_chart2:
         st.markdown(
             """
@@ -539,39 +530,48 @@ with tab_dash:
             unsafe_allow_html=True,
         )
         pie_df = pd.DataFrame({
-            "ประเภท": ["นำไปใช้ประโยชน์ (Recycled)", "ส่งไปกำจัด (Disposed)"],
+            "ประเภท": ["นำไปใช้ประโยชน์", "ส่งไปกำจัด"],
             "ปริมาณ": [total_util, total_disp],
         })
         fig_donut = px.pie(
             pie_df,
             names="ประเภท",
             values="ปริมาณ",
-            hole=0.55,
+            hole=0.6,
             color="ประเภท",
             color_discrete_map={
-                "นำไปใช้ประโยชน์ (Recycled)": "#0D9488",
-                "ส่งไปกำจัด (Disposed)": "#EF4444",
+                "นำไปใช้ประโยชน์": "#10B981",
+                "ส่งไปกำจัด": "#F43F5E",
             },
         )
         fig_donut.update_traces(
-            textposition="outside",
-            textinfo="percent+label",
-            marker=dict(line=dict(color="#FFFFFF", width=3)),
+            textposition="inside",
+            textinfo="percent",
+            marker=dict(line=dict(color="#0B0F19", width=3)),
             hovertemplate="<b>%{label}</b><br>ปริมาณ: %{value:,.2f} " + unit_label + " (%{percent})<extra></extra>",
         )
         fig_donut.update_layout(
-            font=dict(family="Prompt", size=12),
-            margin=dict(l=10, r=10, t=10, b=10),
+            font=dict(family="Prompt", size=12, color="#E2E8F0"),
+            margin=dict(l=20, r=20, t=20, b=20),
             height=370,
-            showlegend=False,
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.1,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=12, color="#CBD5E1"),
+            ),
             paper_bgcolor="rgba(0,0,0,0)",
             annotations=[
                 dict(
-                    text=f"<b>{util_pct:.1f}%</b><br><span style='font-size:11px;color:#64748B;'>ใช้ประโยชน์</span>",
+                    text=f"<b>{util_pct:.1f}%</b><br><span style='font-size:11px;color:#94A3B8;'>ใช้ประโยชน์</span>",
                     x=0.5, y=0.5,
-                    font_size=18,
+                    font_size=17,
                     showarrow=False,
                     font_family="Prompt",
+                    font_color="#34D399",
                 )
             ],
         )
@@ -599,8 +599,8 @@ with tab_dash:
         y=month_data["ขยะที่เกิดขึ้น (กก.)"] / divisor,
         mode="lines+markers",
         name=f"ขยะที่เกิดขึ้น ({unit_label})",
-        line=dict(color="#F59E0B", width=3.5, shape="spline"),
-        marker=dict(size=8, color="#F59E0B"),
+        line=dict(color="#FBBF24", width=3.5, shape="spline"),
+        marker=dict(size=8, color="#FBBF24"),
         hovertemplate="ขยะที่เกิดขึ้น: %{y:,.2f} " + unit_label,
     ))
     fig_line.add_trace(go.Scatter(
@@ -608,8 +608,8 @@ with tab_dash:
         y=month_data["ใช้ประโยชน์ (กก.)"] / divisor,
         mode="lines+markers",
         name=f"นำไปใช้ประโยชน์ ({unit_label})",
-        line=dict(color="#0D9488", width=3, shape="spline"),
-        marker=dict(size=8, color="#0D9488"),
+        line=dict(color="#10B981", width=3, shape="spline"),
+        marker=dict(size=8, color="#10B981"),
         hovertemplate="ใช้ประโยชน์: %{y:,.2f} " + unit_label,
     ))
     fig_line.add_trace(go.Scatter(
@@ -617,28 +617,29 @@ with tab_dash:
         y=month_data["ขยะที่ส่งกำจัด (กก.)"] / divisor,
         mode="lines+markers",
         name=f"ส่งไปกำจัด ({unit_label})",
-        line=dict(color="#EF4444", width=2.5, dash="dash", shape="spline"),
-        marker=dict(size=7, color="#EF4444"),
+        line=dict(color="#F43F5E", width=2.5, dash="dash", shape="spline"),
+        marker=dict(size=7, color="#F43F5E"),
         hovertemplate="ส่งกำจัด: %{y:,.2f} " + unit_label,
     ))
     fig_line.update_layout(
-        font=dict(family="Prompt", size=12),
+        font=dict(family="Prompt", size=12, color="#E2E8F0"),
         hovermode="x unified",
         margin=dict(l=10, r=10, t=20, b=20),
         height=360,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor="#F1F5F9", title=f"ปริมาณ ({unit_label})"),
+        yaxis=dict(showgrid=True, gridcolor="#1F2937", title=f"ปริมาณ ({unit_label})"),
         legend=dict(
             orientation="h",
             yanchor="bottom",
             y=1.02,
             xanchor="center",
             x=0.5,
-            bgcolor="rgba(255,255,255,0.8)",
-            bordercolor="#E2E8F0",
+            bgcolor="rgba(17, 24, 39, 0.8)",
+            bordercolor="#374151",
             borderwidth=1,
+            font=dict(color="#E2E8F0"),
         ),
     )
     st.plotly_chart(fig_line, use_container_width=True)
@@ -670,17 +671,18 @@ with tab_deep:
             x="สังกัด",
             y=["นำไปใช้ประโยชน์", "ส่งไปกำจัด"],
             barmode="group",
-            color_discrete_sequence=["#0D9488", "#EF4444"],
+            color_discrete_sequence=["#10B981", "#F43F5E"],
             labels={"value": f"ปริมาณ ({unit_label})", "variable": "ประเภท"},
         )
         fig_affil.update_layout(
-            font=dict(family="Prompt", size=12),
+            font=dict(family="Prompt", size=12, color="#E2E8F0"),
             margin=dict(l=10, r=10, t=20, b=20),
             height=360,
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            legend=dict(orientation="h", y=1.1, x=0.5, xanchor="center"),
-            yaxis=dict(showgrid=True, gridcolor="#F1F5F9"),
+            legend=dict(orientation="h", y=1.1, x=0.5, xanchor="center", font=dict(color="#E2E8F0")),
+            yaxis=dict(showgrid=True, gridcolor="#1F2937"),
+            xaxis=dict(gridcolor="#1F2937"),
         )
         fig_affil.update_traces(marker=dict(cornerradius=6))
         st.plotly_chart(fig_affil, use_container_width=True)
@@ -701,21 +703,21 @@ with tab_deep:
             color="สังกัด",
             size="ใช้ประโยชน์ (กก.)",
             hover_data=["หน่วยงาน", "เดือน"],
-            color_discrete_sequence=["#0D9488", "#3B82F6"],
+            color_discrete_sequence=["#10B981", "#38BDF8"],
             labels={
                 "คนเฉลี่ย": "จำนวนคนเฉลี่ยในหน่วยงาน",
                 "ขยะที่เกิดขึ้น (กก.)": "ปริมาณขยะที่เกิดขึ้น (กก.)",
             },
         )
         fig_scatter.update_layout(
-            font=dict(family="Prompt", size=12),
+            font=dict(family="Prompt", size=12, color="#E2E8F0"),
             margin=dict(l=10, r=10, t=20, b=20),
             height=360,
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            legend=dict(orientation="h", y=1.1, x=0.5, xanchor="center"),
-            xaxis=dict(showgrid=True, gridcolor="#F1F5F9"),
-            yaxis=dict(showgrid=True, gridcolor="#F1F5F9"),
+            legend=dict(orientation="h", y=1.1, x=0.5, xanchor="center", font=dict(color="#E2E8F0")),
+            xaxis=dict(showgrid=True, gridcolor="#1F2937"),
+            yaxis=dict(showgrid=True, gridcolor="#1F2937"),
         )
         st.plotly_chart(fig_scatter, use_container_width=True)
 
@@ -759,11 +761,11 @@ st.markdown("---")
 f_col1, f_col2 = st.columns(2)
 with f_col1:
     st.markdown(
-        "<div style='font-size: 13px; color: #64748B;'>🌿 มหาวิทยาลัยราชภัฏภูเก็ต (PKRU) • วิชาคอมพิวเตอร์ชั้นสูง</div>",
+        "<div style='font-size: 13px; color: #94A3B8;'>🌿 มหาวิทยาลัยราชภัฏภูเก็ต (PKRU) • วิชาคอมพิวเตอร์ชั้นสูง</div>",
         unsafe_allow_html=True,
     )
 with f_col2:
     st.markdown(
-        "<div style='text-align: right; font-size: 13px; color: #64748B;'>🚀 Deploy พร้อมใช้งานบน <a href='https://share.streamlit.io' target='_blank' style='color:#0D9488;'>Streamlit Community Cloud</a></div>",
+        "<div style='text-align: right; font-size: 13px; color: #94A3B8;'>🚀 Deploy บน <a href='https://share.streamlit.io' target='_blank' style='color:#34D399; text-decoration: none; font-weight: 600;'>Streamlit Community Cloud</a></div>",
         unsafe_allow_html=True,
     )
