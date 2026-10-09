@@ -1,71 +1,54 @@
-# 📊 Streamlit Data Visualization & Deployment Dashboard
+# ♻️ ระบบวิเคราะห์ข้อมูลปริมาณขยะมูลฝอย ปี 2568
+### Streamlit Data Visualization & Deployment
 
-โปรเจกต์แดชบอร์ดแสดงผลข้อมูลเชิงโต้ตอบ (Interactive Data Dashboard) พัฒนาด้วย **Streamlit** และ **Python** พร้อมสำหรับการ Deploy ขึ้น **Streamlit Community Cloud** หรือ Cloud Platform อื่นๆ
+เว็บแอปพลิเคชันวิเคราะห์และแสดงผลข้อมูลเชิงโต้ตอบ (Interactive Data Visualization) พัฒนาด้วย **Python, Pandas, Plotly และ Streamlit**  
+ชุดข้อมูล: **ปริมาณขยะมูลฝอย ปี 2568 (กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช)**  
+ดึงข้อมูลจาก API: **Open Government Data of Thailand (data.go.th)**
 
 ---
 
-## 📁 โครงสร้างโปรเจกต์ (Project Structure)
-```text
-streamlit_data_viz/
-├── app.py              # โค้ดหลักของ Streamlit App (UI, Charts, Data processing)
-├── requirements.txt    # รายการแพ็กเกจที่ต้องใช้สำหรับ Deploy
-├── .gitignore          # ละเว้นไฟล์ที่ไม่ต้องการอัปโหลดขึ้น Git เช่น .venv/
-└── README.md           # คู่มือการติดตั้ง รันโปรแกรม และการ Deploy
+## 🌟 ฟีเจอร์เด่นของระบบ
+- 📡 **เชื่อมต่อ API อัตโนมัติ**: ดึงข้อมูลสดจากฐานข้อมูล CKAN Datastore ของ data.go.th พร้อมระบบ Local Cache สำรอง
+- 🎛️ **Interactive Widgets (5 รูปแบบ)**:
+  1. เลือกสังกัดหน่วยงาน (Selectbox)
+  2. เลือกเดือน (Multiselect)
+  3. สไลเดอร์กรองปริมาณขยะขั้นต่ำ (Slider)
+  4. ช่องค้นหาชื่อหน่วยงาน (Text Input)
+  5. สลับหน่วยแสดงผล กิโลกรัม / ตัน (Radio Button)
+- 📌 **สรุปตัวชี้วัดสำคัญ (Key Metrics)**:
+  - ปริมาณขยะที่เกิดขึ้นรวม
+  - ปริมาณขยะที่นำไปใช้ประโยชน์
+  - ปริมาณขยะที่ส่งกำจัด
+  - อัตราส่วนการนำไปใช้ประโยชน์ (%)
+- 📊 **กราฟวิเคราะห์ข้อมูล (Visualizations)**:
+  1. **กราฟแท่ง (Horizontal Bar Chart)**: 10 อันดับหน่วยงานที่มีปริมาณขยะสูงสุด
+  2. **กราฟวงกลม (Donut Chart)**: สัดส่วนการจัดการขยะ (ใช้ประโยชน์ vs ส่งกำจัด)
+  3. **กราฟเส้น (Multi-line Chart)**: แนวโน้มปริมาณขยะรายเดือนทั้ง 3 ประเภท
+- 📋 **Data Explorer & Export**:
+  - ตารางแสดงข้อมูลรายละเอียดที่ผ่านการกรอง
+  - ปุ่มดาวน์โหลดข้อมูลที่ผ่านการกรองออกมาเป็นไฟล์ CSV
+
+---
+
+## 💻 วิธีการรันบนเครื่องคอมพิวเตอร์ (Local Development)
+
+```bash
+# 1. เข้าสู่โฟลเดอร์โปรเจกต์
+cd streamlit_data_viz
+
+# 2. ติดตั้งแพ็กเกจที่จำเป็น
+pip install -r requirements.txt
+
+# 3. รัน Streamlit
+streamlit run app.py
 ```
 
 ---
 
-## 💻 วิธีการรันบนเครื่องตนเอง (Local Development)
-
-1. **เข้าสู่โฟลเดอร์โปรเจกต์**:
-   ```bash
-   cd "69-1 คอมพิวเตอร์ชั้นสูง/streamlit_data_viz"
-   ```
-
-2. **เปิดใช้งาน Virtual Environment (ถ้ามี)**:
-   - macOS / Linux:
-     ```bash
-     source .venv/bin/activate
-     ```
-   - Windows:
-     ```bash
-     .venv\Scripts\activate
-     ```
-
-3. **ติดตั้ง Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **รัน Streamlit App**:
-   ```bash
-   streamlit run app.py
-   ```
-   โปรแกรมจะเปิดเบราว์เซอร์อัตโนมัติที่ `http://localhost:8501`
-
----
-
-## 🚀 คู่มือการ Deployment ขึ้น Streamlit Community Cloud (ฟรี)
-
-1. **สร้าง Git Repository**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit for Streamlit Data Visualization App"
-   ```
-
-2. **Push โค้ดขึ้น GitHub**:
-   - สร้าง New Repository บน [GitHub.com](https://github.com)
-   - เชื่อมต่อและ Push โค้ดขึ้นไป:
-     ```bash
-     git remote add origin <URL-ของ-GitHub-Repository>
-     git branch -M main
-     git push -u origin main
-     ```
-
-3. **Deploy บน Streamlit Cloud**:
-   - ไปที่ [share.streamlit.io](https://share.streamlit.io) แล้วล็อกอินด้วย GitHub
-   - คลิกปุ่ม **"Create app"**
-   - เลือก Repository, Branch (`main`), และ Main file path (`app.py`)
-   - กดปุ่ม **"Deploy!"**
-   - ภายในไม่กี่นาที คุณจะได้ URL สาธารณะที่ทุกคนสามารถเข้าชมแดชบอร์ดได้ทันที!
+## 🚀 การ Deployment บน Streamlit Community Cloud
+1. โค้ดโปรเจกต์นี้ถูก Push ขึ้น GitHub Repository:
+   `https://github.com/wiwatpromwihan/Streamlit_Data_Visualization-Deployment.git`
+2. เข้าไปที่ [share.streamlit.io](https://share.streamlit.io)
+3. เลือก Repository: `wiwatpromwihan/Streamlit_Data_Visualization-Deployment`
+4. ตั้งค่า Main file path: `app.py`
+5. กดปุ่ม **Deploy!**

@@ -1,200 +1,296 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import datetime
+import plotly.express as px
+import plotly.graph_objects as go
+import urllib.request
+import json
+import os
 
-# --- ตั้งค่าหน้าเว็บ (Page Configuration) ---
+# --- ตั้งค่าหน้าเว็บ (Page Config) ---
 st.set_page_config(
-    page_title="Data Visualization Dashboard",
-    page_icon="📊",
+    page_title="ระบบวิเคราะห์ปริมาณขยะมูลฝอย ปี 2568",
+    page_icon="♻️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# --- ฟังก์ชันสร้างข้อมูลตัวอย่าง (Demo Data Generator) ---
-@st.cache_data
-def generate_sample_data():
-    np.random.seed(42)
-    dates = pd.date_range(start="2026-01-01", periods=180, freq="D")
-    categories = ["Electronics", "Clothing", "Home & Kitchen", "Books", "Sports"]
-    regions = ["North", "Central", "South", "East", "Northeast"]
-    
-    data = {
-        "Date": np.random.choice(dates, size=500),
-        "Category": np.random.choice(categories, size=500),
-        "Region": np.random.choice(regions, size=500),
-        "Sales": np.random.uniform(100, 5000, size=500).round(2),
-        "Units_Sold": np.random.randint(1, 20, size=500),
-        "Customer_Rating": np.random.uniform(3.0, 5.0, size=500).round(1),
-    }
-    df = pd.DataFrame(data)
-    df["Revenue"] = (df["Sales"] * df["Units_Sold"]).round(2)
-    df = df.sort_values(by="Date").reset_index(drop=True)
-    return df
+# --- ลำดับเดือนภาษาไทยสำหรับการจัดเรียงข้อมูล ---
+THAI_MONTHS = [
+    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+]
 
-# --- ส่วนแถบด้านข้าง (Sidebar) ---
-st.sidebar.title("⚙️ การควบคุมและฟิลเตอร์")
-st.sidebar.markdown("---")
+# --- ฟังก์ชันโหลดข้อมูล (Data Loader with Cache) ---
+@st.cache_data(ttl=3600)
+def load_data():
+    api_url = "https://data.go.th/api/3/action/datastore_search?resource_id=1a83a733-7ca2-4310-8299-ee75a5715ee2&limit=500"
+    df = None
+    data_source_msg = "API สด (data.go.th)"
 
-# เลือกว่าจะใช้ชุดข้อมูลตัวอย่าง หรืออัปโหลดไฟล์ CSV เอง
-data_source = st.sidebar.radio(
-    "แหล่งข้อมูล (Data Source):",
-    ["📊 ชุดข้อมูลตัวอย่าง (Demo Dataset)", "📁 อัปโหลดไฟล์ CSV (Upload CSV)"],
-)
-
-if data_source == "📁 อัปโหลดไฟล์ CSV (Upload CSV)":
-    uploaded_file = st.sidebar.file_uploader("เลือกไฟล์ CSV ของคุณ", type=["csv"])
-    if uploaded_file is not None:
-        try:
-            df = pd.read_csv(uploaded_file)
-            st.sidebar.success("✅ อัปโหลดไฟล์สำเร็จ!")
-        except Exception as e:
-            st.sidebar.error(f"เกิดข้อผิดพลาดในการอ่านไฟล์: {e}")
-            df = generate_sample_data()
-    else:
-        st.sidebar.info("ยังไม่ได้อัปโหลดไฟล์ กำลังใช้ข้อมูลตัวอย่างแทน")
-        df = generate_sample_data()
-else:
-    df = generate_sample_data()
-
-# ฟิลเตอร์ตามหมวดหมู่ (Category Filter)
-if "Category" in df.columns:
-    all_categories = df["Category"].unique().tolist()
-    selected_categories = st.sidebar.multiselect(
-        "เลือกหมวดหมู่ (Categories):",
-        options=all_categories,
-        default=all_categories,
-    )
-    if selected_categories:
-        df = df[df["Category"].isin(selected_categories)]
-
-# ฟิลเตอร์ช่วงวันที่ (Date Filter)
-if "Date" in df.columns:
     try:
-        df["Date"] = pd.to_datetime(df["Date"])
-        min_date = df["Date"].min().date()
-        max_date = df["Date"].max().date()
-        date_range = st.sidebar.date_input(
-            "ช่วงวันที่ (Date Range):",
-            value=(min_date, max_date),
-            min_value=min_date,
-            max_value=max_date,
-        )
-        if isinstance(date_range, (tuple, list)) and len(date_range) == 2:
-            start_date, end_date = date_range
-            df = df[(df["Date"].dt.date >= start_date) & (df["Date"].dt.date <= end_date)]
+        req = urllib.request.Request(api_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as response:
+            if response.status == 200:
+                raw = json.loads(response.read().decode("utf-8"))
+                records = raw.get("result", {}).get("records", [])
+                if records:
+                    df = pd.DataFrame(records)
     except Exception:
-        pass
+        df = None
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🚀 เกี่ยวกับการ Deployment")
-st.sidebar.info(
+    # กรณีต่อ API ไม่ได้ ให้ใช้แคชข้อมูลสำรองในเครื่อง
+    if df is None or df.empty:
+        csv_cache_path = os.path.join(os.path.dirname(__file__), "data_cache.csv")
+        if os.path.exists(csv_cache_path):
+            df = pd.read_csv(csv_cache_path)
+            data_source_msg = "แคชข้อมูลสำรองในเครื่อง (Local Cache)"
+        else:
+            st.error("ไม่สามารถเชื่อมต่อ API และไม่พบไฟล์แคชสำรอง")
+            return pd.DataFrame(), "Error"
+
+    # แปลงคอลัมน์ตัวเลขให้ถูกต้อง
+    numeric_cols = [
+        "ขยะที่เกิดขึ้น (กก.)",
+        "ใช้ประโยชน์ (กก.)",
+        "ขยะที่ส่งกำจัด (กก.)",
+        "ร้อยละส่งกำจัดลดลง",
+        "คนเฉลี่ย",
+        "วันทำงาน",
+    ]
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+
+    # จัดเรียงลำดับเดือน
+    if "เดือน" in df.columns:
+        df["เดือน_ลำดับ"] = df["เดือน"].apply(lambda m: THAI_MONTHS.index(m) if m in THAI_MONTHS else 99)
+
+    return df, data_source_msg
+
+# โหลดข้อมูล
+df_raw, source_status = load_data()
+
+# --- ส่วนหัวของหน้าเว็บ (Header) ---
+st.title("♻️ ระบบวิเคราะห์ข้อมูลปริมาณขยะมูลฝอย ปี 2568")
+st.markdown(
     """
-    **ขั้นตอนการ Deploy ขึ้น Streamlit Cloud:**
-    1. อัปโหลดโค้ดขึ้น GitHub Repository
-    2. เข้าไปที่ [share.streamlit.io](https://share.streamlit.io)
-    3. เชื่อมต่อบัญชี GitHub แล้วเลือก Repository
-    4. กำหนดไฟล์หลักเป็น `app.py` แล้วกด **Deploy**
+    **การวิเคราะห์และแสดงผลข้อมูลเชิงโต้ตอบ (Data Visualization & Deployment)**  
+    ชุดข้อมูล: *ปริมาณขยะมูลฝอย ปี 2568 กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช*  
+    🔗 แหล่งข้อมูลต้นทาง: **Open Government Data of Thailand (data.go.th)**
     """
 )
-
-# --- ส่วนเนื้อหาหลัก (Main Dashboard) ---
-st.title("📈 Streamlit Data Visualization & Deployment Dashboard")
-st.markdown("ระบบวิเคราะห์และแสดงผลข้อมูลเชิงโต้ตอบ (Interactive Data Dashboard) พัฒนาด้วย **Streamlit & Python**")
+st.caption(f"📡 สถานะการดึงข้อมูล: **{source_status}** • จำนวนข้อมูลทั้งหมด: **{len(df_raw)}** แถว")
 st.markdown("---")
 
-# 1. แสดงตัวชี้วัดสำคัญ (Key Performance Indicators - KPIs)
-st.subheader("📌 ภาพรวมตัวชี้วัดสำคัญ (Key Metrics)")
+if df_raw.empty:
+    st.warning("ไม่มีข้อมูลที่จะแสดงผล กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต")
+    st.stop()
+
+# --- แถบตัวกรอง (Sidebar - Interactive Widgets) ---
+st.sidebar.header("🎛️ ตัวกรองข้อมูล (Filters)")
+
+# Widget 1: เลือกสังกัด
+affiliations = ["ทั้งหมด"] + sorted(df_raw["สังกัด"].dropna().unique().tolist())
+selected_affil = st.sidebar.selectbox("1. เลือกสังกัดหน่วยงาน:", affiliations)
+
+# Widget 2: เลือกเดือน (Multiselect)
+available_months = [m for m in THAI_MONTHS if m in df_raw["เดือน"].values]
+selected_months = st.sidebar.multiselect(
+    "2. เลือกเดือนที่ต้องการดู:",
+    options=available_months,
+    default=available_months,
+)
+
+# Widget 3: ปริมาณขยะขั้นต่ำ (Slider)
+max_waste = float(df_raw["ขยะที่เกิดขึ้น (กก.)"].max())
+waste_threshold = st.sidebar.slider(
+    "3. กรองปริมาณขยะที่เกิดขึ้นขั้นต่ำ (กก.):",
+    min_value=0.0,
+    max_value=float(np.ceil(max_waste)),
+    value=0.0,
+    step=10.0,
+)
+
+# Widget 4: ช่องค้นหาชื่อหน่วยงาน
+search_unit = st.sidebar.text_input("4. ค้นหาชื่อหน่วยงาน:", placeholder="เช่น สำนักบริหาร...")
+
+# Widget 5: สลับหน่วยแสดงผล (กก. หรือ ตัน)
+unit_option = st.sidebar.radio(
+    "5. หน่วยการแสดงผลตัวเลข:",
+    options=["กิโลกรัม (กก.)", "ตัน (Tons)"],
+    horizontal=True,
+)
+divisor = 1000.0 if "ตัน" in unit_option else 1.0
+unit_label = "ตัน" if "ตัน" in unit_option else "กก."
+
+# กรองข้อมูลตามเงื่อนไขของผู้ใช้
+df_filtered = df_raw.copy()
+
+if selected_affil != "ทั้งหมด":
+    df_filtered = df_filtered[df_filtered["สังกัด"] == selected_affil]
+
+if selected_months:
+    df_filtered = df_filtered[df_filtered["เดือน"].isin(selected_months)]
+
+if waste_threshold > 0:
+    df_filtered = df_filtered[df_filtered["ขยะที่เกิดขึ้น (กก.)"] >= waste_threshold]
+
+if search_unit.strip():
+    df_filtered = df_filtered[df_filtered["หน่วยงาน"].str.contains(search_unit.strip(), na=False)]
+
+# --- สรุปภาพรวมตัวชี้วัด (KPI Metrics) ---
+st.subheader("📌 ตัวชี้วัดสำคัญ (Key Metrics)")
+
+total_generated = df_filtered["ขยะที่เกิดขึ้น (กก.)"].sum() / divisor
+total_utilized = df_filtered["ใช้ประโยชน์ (กก.)"].sum() / divisor
+total_disposed = df_filtered["ขยะที่ส่งกำจัด (กก.)"].sum() / divisor
+utilization_rate = (
+    (df_filtered["ใช้ประโยชน์ (กก.)"].sum() / df_filtered["ขยะที่เกิดขึ้น (กก.)"].sum() * 100)
+    if df_filtered["ขยะที่เกิดขึ้น (กก.)"].sum() > 0
+    else 0.0
+)
+
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-
-total_records = len(df)
-kpi1.metric("จำนวนรายการทั้งหมด", f"{total_records:,} รายการ")
-
-if "Revenue" in df.columns:
-    total_revenue = df["Revenue"].sum()
-    avg_revenue = df["Revenue"].mean()
-    kpi2.metric("ยอดรวมรายได้ (Revenue)", f"฿{total_revenue:,.2f}")
-    kpi3.metric("รายได้เฉลี่ยต่อรายการ", f"฿{avg_revenue:,.2f}")
-else:
-    kpi2.metric("จำนวนคอลัมน์", f"{len(df.columns)} คอลัมน์")
-    kpi3.metric("ข้อมูลสมบูรณ์", "100%")
-
-if "Customer_Rating" in df.columns:
-    avg_rating = df["Customer_Rating"].mean()
-    kpi4.metric("คะแนนเฉลี่ยลูกค้า", f"{avg_rating:.2f} ⭐")
-elif "Units_Sold" in df.columns:
-    total_units = df["Units_Sold"].sum()
-    kpi4.metric("ยอดขายรวม (ชิ้น)", f"{total_units:,} ชิ้น")
-else:
-    kpi4.metric("สถานะระบบ", "พร้อมใช้งาน ✅")
+kpi1.metric(f"🗑️ ขยะที่เกิดขึ้นรวม ({unit_label})", f"{total_generated:,.2f}")
+kpi2.metric(f"🌱 นำไปใช้ประโยชน์ ({unit_label})", f"{total_utilized:,.2f}")
+kpi3.metric(f"🚛 ส่งไปกำจัด ({unit_label})", f"{total_disposed:,.2f}")
+kpi4.metric("♻️ อัตราการนำไปใช้ประโยชน์", f"{utilization_rate:.1f}%")
 
 st.markdown("---")
 
-# 2. กราฟและการแสดงผลข้อมูล (Data Visualizations)
-st.subheader("📊 กราฟวิเคราะห์ข้อมูล (Visualizations)")
+# --- กราฟแสดงผล (Visualizations) ---
+st.subheader("📊 กราฟวิเคราะห์ข้อมูล (Data Visualizations)")
 
-col_left, col_right = st.columns(2)
+# แถวกราฟที่ 1
+col_graph1, col_graph2 = st.columns([1.2, 0.8])
 
-with col_left:
-    st.markdown("#### 📅 แนวโน้มตามช่วงเวลา (Trend Over Time)")
-    if "Date" in df.columns and "Revenue" in df.columns:
-        trend_df = df.groupby(df["Date"].dt.date)["Revenue"].sum().reset_index()
-        trend_df = trend_df.set_index("Date")
-        st.line_chart(trend_df, use_container_width=True)
-    elif "Date" in df.columns:
-        trend_df = df.groupby(df["Date"].dt.date).size().rename("Count")
-        st.line_chart(trend_df, use_container_width=True)
-    else:
-        st.info("ไม่พบคอลัมน์วันที่สำหรับแสดงกราฟแนวโน้ม")
+# กราฟที่ 1: กราฟแท่ง 10 อันดับหน่วยงานที่มีขยะเกิดขึ้นสูงสุด
+with col_graph1:
+    st.markdown("#### 1️⃣ กราฟแท่ง: 10 อันดับหน่วยงานที่มีปริมาณขยะสูงสุด")
+    top_units = (
+        df_filtered.groupby("หน่วยงาน")["ขยะที่เกิดขึ้น (กก.)"]
+        .sum()
+        .reset_index()
+        .sort_values(by="ขยะที่เกิดขึ้น (กก.)", ascending=False)
+        .head(10)
+    )
+    top_units["ค่าที่แสดง"] = top_units["ขยะที่เกิดขึ้น (กก.)"] / divisor
 
-with col_right:
-    st.markdown("#### 🏷️ ยอดรวมแยกตามหมวดหมู่ (By Category)")
-    if "Category" in df.columns and "Revenue" in df.columns:
-        cat_df = df.groupby("Category")["Revenue"].sum().sort_values(ascending=False)
-        st.bar_chart(cat_df, use_container_width=True)
-    elif "Category" in df.columns:
-        cat_df = df["Category"].value_counts()
-        st.bar_chart(cat_df, use_container_width=True)
-    else:
-        st.info("ไม่พบคอลัมน์หมวดหมู่สำหรับแสดงกราฟแท่ง")
+    fig_bar = px.bar(
+        top_units,
+        x="ค่าที่แสดง",
+        y="หน่วยงาน",
+        orientation="h",
+        color="ค่าที่แสดง",
+        color_continuous_scale="Tealgrn",
+        labels={"ค่าที่แสดง": f"ปริมาณขยะ ({unit_label})", "หน่วยงาน": "หน่วยงาน"},
+    )
+    fig_bar.update_layout(
+        yaxis={"categoryorder": "total ascending"},
+        margin=dict(l=20, r=20, t=20, b=20),
+        height=380,
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
 
-# แถวกราฟที่ 2 (ภูมิภาคและความสัมพันธ์)
-col3, col4 = st.columns(2)
+# กราฟที่ 3: สัดส่วนการจัดการขยะ (Donut Chart)
+with col_graph2:
+    st.markdown("#### 2️⃣ กราฟวงกลม: สัดส่วนการจัดการขยะ")
+    pie_data = pd.DataFrame({
+        "ประเภท": ["นำไปใช้ประโยชน์", "ส่งไปกำจัด"],
+        "ปริมาณ": [
+            df_filtered["ใช้ประโยชน์ (กก.)"].sum() / divisor,
+            df_filtered["ขยะที่ส่งกำจัด (กก.)"].sum() / divisor,
+        ],
+    })
+    fig_pie = px.pie(
+        pie_data,
+        names="ประเภท",
+        values="ปริมาณ",
+        hole=0.45,
+        color="ประเภท",
+        color_discrete_map={"นำไปใช้ประโยชน์": "#2EC4B6", "ส่งไปกำจัด": "#E71D36"},
+    )
+    fig_pie.update_traces(textinfo="percent+label", textposition="inside")
+    fig_pie.update_layout(
+        margin=dict(l=10, r=10, t=20, b=20),
+        height=380,
+        showlegend=False,
+    )
+    st.plotly_chart(fig_pie, use_container_width=True)
 
-with col3:
-    st.markdown("#### 🗺️ สัดส่วนตามภูมิภาค (By Region)")
-    if "Region" in df.columns and "Revenue" in df.columns:
-        region_df = df.groupby("Region")["Revenue"].sum().reset_index()
-        st.bar_chart(region_df.set_index("Region"), use_container_width=True)
-    elif "Region" in df.columns:
-        st.bar_chart(df["Region"].value_counts(), use_container_width=True)
-    else:
-        st.info("ไม่พบคอลัมน์ภูมิภาค")
+# กราฟที่ 2: กราฟเส้นแนวโน้มรายเดือน
+st.markdown("#### 3️⃣ กราฟเส้น: แนวโน้มปริมาณขยะในแต่ละเดือน")
+monthly_df = (
+    df_filtered.groupby(["เดือน_ลำดับ", "เดือน"])[["ขยะที่เกิดขึ้น (กก.)", "ใช้ประโยชน์ (กก.)", "ขยะที่ส่งกำจัด (กก.)"]]
+    .sum()
+    .reset_index()
+    .sort_values(by="เดือน_ลำดับ")
+)
 
-with col4:
-    st.markdown("#### 🎯 ความสัมพันธ์ ยอดขาย vs หน่วยสินค้า")
-    if "Sales" in df.columns and "Units_Sold" in df.columns:
-        scatter_df = df[["Sales", "Units_Sold"]].dropna()
-        st.scatter_chart(scatter_df, x="Sales", y="Units_Sold", use_container_width=True)
-    else:
-        st.info("ไม่มีข้อมูลตัวเลขเพียงพอสำหรับสร้าง Scatter chart")
+monthly_df["ขยะที่เกิดขึ้น"] = monthly_df["ขยะที่เกิดขึ้น (กก.)"] / divisor
+monthly_df["นำไปใช้ประโยชน์"] = monthly_df["ใช้ประโยชน์ (กก.)"] / divisor
+monthly_df["ส่งไปกำจัด"] = monthly_df["ขยะที่ส่งกำจัด (กก.)"] / divisor
+
+fig_line = go.Figure()
+fig_line.add_trace(go.Scatter(
+    x=monthly_df["เดือน"],
+    y=monthly_df["ขยะที่เกิดขึ้น"],
+    mode="lines+markers",
+    name=f"ขยะที่เกิดขึ้น ({unit_label})",
+    line=dict(color="#FF9F1C", width=3),
+    marker=dict(size=8),
+))
+fig_line.add_trace(go.Scatter(
+    x=monthly_df["เดือน"],
+    y=monthly_df["นำไปใช้ประโยชน์"],
+    mode="lines+markers",
+    name=f"นำไปใช้ประโยชน์ ({unit_label})",
+    line=dict(color="#2EC4B6", width=2.5),
+    marker=dict(size=7),
+))
+fig_line.add_trace(go.Scatter(
+    x=monthly_df["เดือน"],
+    y=monthly_df["ส่งไปกำจัด"],
+    mode="lines+markers",
+    name=f"ส่งไปกำจัด ({unit_label})",
+    line=dict(color="#E71D36", width=2, dash="dash"),
+    marker=dict(size=6),
+))
+fig_line.update_layout(
+    xaxis_title="เดือน",
+    yaxis_title=f"ปริมาณขยะ ({unit_label})",
+    hovermode="x unified",
+    margin=dict(l=20, r=20, t=30, b=20),
+    height=360,
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+)
+st.plotly_chart(fig_line, use_container_width=True)
 
 st.markdown("---")
 
-# 3. ตารางข้อมูลดิบ (Data Explorer Table)
-st.subheader("📋 ตารางข้อมูล (Data Table)")
-with st.expander("🔍 คลิกเพื่อดูหรือดาวน์โหลดข้อมูลทั้งหมด", expanded=True):
-    st.dataframe(df, use_container_width=True, height=280)
-    
-    # ปุ่มดาวน์โหลดข้อมูลเป็นไฟล์ CSV
-    csv_data = df.to_csv(index=False).encode("utf-8")
+# --- ตารางข้อมูลและการดาวน์โหลด (Data Table & Download) ---
+st.subheader("📋 ตารางข้อมูลรายละเอียด (Filtered Data)")
+with st.expander("🔍 คลิกเพื่อดูตารางข้อมูลและดาวน์โหลด", expanded=True):
+    show_cols = [
+        "ปี", "สังกัด", "หน่วยงาน", "เดือน", "คนเฉลี่ย", "วันทำงาน",
+        "ขยะที่เกิดขึ้น (กก.)", "ใช้ประโยชน์ (กก.)", "ขยะที่ส่งกำจัด (กก.)", "ร้อยละส่งกำจัดลดลง"
+    ]
+    display_df = df_filtered[[c for c in show_cols if c in df_filtered.columns]].copy()
+    st.dataframe(display_df, use_container_width=True, height=280)
+
+    csv_bytes = display_df.to_csv(index=False).encode("utf-8-sig")
     st.download_button(
-        label="📥 ดาวน์โหลดข้อมูลที่กรองแล้ว (Download CSV)",
-        data=csv_data,
-        file_name=f"filtered_data_{datetime.date.today()}.csv",
+        label="📥 ดาวน์โหลดข้อมูลที่กรองแล้ว (CSV)",
+        data=csv_bytes,
+        file_name="waste_management_data_2568.csv",
         mime="text/csv",
     )
 
-# --- ส่วนล่าง (Footer) ---
+# --- ส่วนท้าย (Footer) ---
 st.markdown("---")
-st.caption("พัฒนาเพื่อการศึกษา: วิชาคอมพิวเตอร์ชั้นสูง • สร้างด้วย Streamlit & Python")
+col_foot1, col_foot2 = st.columns(2)
+with col_foot1:
+    st.caption("👨‍💻 ผู้พัฒนา: wiwatpromwihan • มหาวิทยาลัยราชภัฏภูเก็ต (PKRU)")
+with col_foot2:
+    st.caption("🚀 GitHub: [Streamlit_Data_Visualization-Deployment](https://github.com/wiwatpromwihan/Streamlit_Data_Visualization-Deployment)")
